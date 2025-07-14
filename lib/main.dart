@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'screens/home.dart';
 import 'screens/introsplashscreen.dart'; // contains IntroSplashScreen and SplashScreen
 import 'screens/login.dart';
 import 'screens/register.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:expense_tracker_app/firebase_options.dart';
 
-
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // auto-generated after firebase setup
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -112,7 +107,8 @@ class SplashScreen extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(50
+                          ),
                         ),
                       ),
                       child: const Text(

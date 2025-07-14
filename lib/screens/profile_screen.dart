@@ -1,20 +1,82 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'login.dart'; // Import your login screen
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'login.dart'; // Your login screen
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String? _profileImageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfileImage();
+  }
+
+  Future<void> _loadUserProfileImage() async {
+    final user = FirebaseAuth.instance.currentUser;
+    setState(() {
+      _profileImageUrl = user?.photoURL;
+    });
+  }
+
+  Future<void> _pickAndUploadImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source, maxWidth: 600);
+
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        try {
+          final storageRef = FirebaseStorage.instance
+              .ref()
+              .child('user_profiles')
+              .child('${user.uid}.jpg');
+
+          await storageRef.putFile(file);
+          final downloadURL = await storageRef.getDownloadURL();
+
+          // Update Firebase Auth photoURL
+          await user.updatePhotoURL(downloadURL);
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set({'profileImage': downloadURL}, SetOptions(merge: true));
+
+          await user.reload();
+          _loadUserProfileImage();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated!')),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Upload failed: $e')),
+          );
+        }
+      }
+    }
+  }
 
   void _onLogout(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
-
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
             (route) => false,
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Logged out successfully')),
       );
@@ -23,6 +85,36 @@ class ProfileScreen extends StatelessWidget {
         SnackBar(content: Text('Logout failed: $e')),
       );
     }
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickAndUploadImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo),
+                title: const Text('Choose from gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickAndUploadImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -48,9 +140,27 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 35,
-                    backgroundImage: AssetImage('assets/images/profile.jpg'),
+                  GestureDetector(
+                    onTap: _showImagePickerOptions,
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundImage: _profileImageUrl != null
+                              ? NetworkImage(_profileImageUrl!)
+                              : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                        ),
+                        const Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CircleAvatar(
+                            radius: 12,
+                            backgroundColor: Colors.black54,
+                            child: Icon(Icons.camera_alt, size: 15, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Column(

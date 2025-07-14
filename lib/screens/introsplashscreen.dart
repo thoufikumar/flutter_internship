@@ -18,7 +18,7 @@ class _IntroSplashScreenState extends State<IntroSplashScreen> {
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => const SplashScreen()),
       );
     });
   }
