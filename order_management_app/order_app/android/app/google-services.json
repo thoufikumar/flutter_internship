@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "52875851411",
+    "project_id": "orderapp-21768",
+    "storage_bucket": "orderapp-21768.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52875851411:android:d307effc3d284777c4bf66",
+        "android_client_info": {
+          "package_name": "com.example.order_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA70MMnWfjVlGSy6uuWqcmSHnVKp9vQhUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52875851411:android:eeee5b309ce03791c4bf66",
+        "android_client_info": {
+          "package_name": "com.test.orderapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA70MMnWfjVlGSy6uuWqcmSHnVKp9vQhUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
